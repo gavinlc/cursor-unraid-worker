@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>cursor-worker</Name>
+  <Repository>ghcr.io/gavinlc/cursor-unraid-worker:latest</Repository>
+  <Registry>https://github.com/gavinlc/cursor-unraid-worker/pkgs/container/cursor-unraid-worker</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/gavinlc/cursor-unraid-worker</Support>
+  <Project>https://github.com/gavinlc/cursor-unraid-worker</Project>
+  <Overview>Always-on Cursor My Machines worker. Agent loop runs in Cursor cloud; tools run in this container over outbound HTTPS only (no ports). Create dirs /mnt/user/appdata/cursor-worker/repo and .../config before first start. Use a personal Cursor API key (Dashboard → API Keys), not a team/service key.</Overview>
+  <Category>Tools:Utilities</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/gavinlc/cursor-unraid-worker/main/unraid/my-cursor-worker.xml</TemplateURL>
+  <Icon>https://www.google.com/s2/favicons?domain=cursor.com&amp;sz=64</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Host Path repo" Target="/workspace/repo" Default="/mnt/user/appdata/cursor-worker/repo" Mode="rw" Description="Git checkout the worker operates on (ai-job-search, etc.)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/cursor-worker/repo</Config>
+  <Config Name="Host Path config" Target="/home/cursor/.config/cursor-worker" Default="/mnt/user/appdata/cursor-worker/config" Mode="rw" Description="Optional token file path: mount/.../config/token (chmod 600). Leave CURSOR_API_KEY empty if using the file." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/cursor-worker/config</Config>
+  <Config Name="CURSOR_API_KEY" Target="CURSOR_API_KEY" Default="" Mode="" Description="Personal Cursor user API key (Dashboard → API Keys). Leave blank if using config/token file." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="WORKER_NAME" Target="WORKER_NAME" Default="unraid" Mode="" Description="Name shown under My Machines in Cursor" Type="Variable" Display="always" Required="true" Mask="false">unraid</Config>
+  <Config Name="REPO_URL" Target="REPO_URL" Default="" Mode="" Description="Optional: git remote to clone into /workspace/repo on first start if empty" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="REPO_BRANCH" Target="REPO_BRANCH" Default="" Mode="" Description="Optional branch to checkout after clone/fetch" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="IDLE_RELEASE_TIMEOUT" Target="IDLE_RELEASE_TIMEOUT" Default="0" Mode="" Description="Seconds before idle worker exits; 0 = stay connected" Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
+  <Config Name="HTTPS_PROXY" Target="HTTPS_PROXY" Default="" Mode="" Description="Optional outbound HTTPS proxy URL" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>
