@@ -4,8 +4,7 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
-    HOME=/home/cursor \
-    PATH=/home/cursor/.local/bin:/usr/local/bin:/usr/bin:/bin
+    HOME=/home/cursor
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -18,11 +17,13 @@ RUN apt-get update \
         bash \
         tini \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --shell /bin/bash --uid 99 cursor
+    && /usr/sbin/useradd --create-home --shell /bin/bash --uid 99 cursor
 
 # Unraid often maps containers as nobody (99:100). uid 99 matches "nobody" on many Unraid hosts.
 USER cursor
 WORKDIR /home/cursor
+# PATH after USER so build steps still see /usr/sbin; runtime prefers ~/.local/bin for `agent`
+ENV PATH=/home/cursor/.local/bin:/usr/local/bin:/usr/bin:/bin
 
 # Install Cursor CLI as the runtime user
 RUN curl -fsSL https://cursor.com/install | bash \
