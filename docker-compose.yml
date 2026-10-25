@@ -1,0 +1,32 @@
+# Unraid: Docker Compose Manager / Compose V2
+# Appdata example: /mnt/user/appdata/cursor-worker
+#
+# 1. Copy this folder to the Unraid host (or git clone this repo).
+# 2. cp .env.example .env  and fill CURSOR_API_KEY + REPO_URL.
+# 3. Put a git checkout under ./data/repo OR let entrypoint clone REPO_URL.
+# 4. docker compose up -d --build
+
+services:
+  cursor-worker:
+    build: .
+    image: cursor-unraid-worker:local
+    container_name: cursor-worker
+    restart: unless-stopped
+    environment:
+      WORKER_NAME: ${WORKER_NAME:-unraid}
+      WORKER_DIR: /workspace/repo
+      IDLE_RELEASE_TIMEOUT: ${IDLE_RELEASE_TIMEOUT:-0}
+      REPO_URL: ${REPO_URL:-}
+      REPO_BRANCH: ${REPO_BRANCH:-}
+      # Personal user API key from https://cursor.com/dashboard → API Keys
+      CURSOR_API_KEY: ${CURSOR_API_KEY:-}
+      # Optional outbound proxy
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      https_proxy: ${HTTPS_PROXY:-}
+    volumes:
+      # Your project checkout (ai-job-search, etc.) — keep personal files here
+      - ${REPO_HOST_PATH:-./data/repo}:/workspace/repo
+      # Optional token file instead of env (create data/config/token, mode 600)
+      - ${CONFIG_HOST_PATH:-./data/config}:/home/cursor/.config/cursor-worker
+    # No ports — worker dials out to Cursor over HTTPS only
+    # Unraid: set PUID/PGID via extras if your share ownership differs; image user is uid 99
