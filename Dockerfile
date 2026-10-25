@@ -13,6 +13,7 @@ RUN apt-get update \
         curl \
         git \
         openssh-client \
+        passwd \
         python3 \
         bash \
         tini \
