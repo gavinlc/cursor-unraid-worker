@@ -108,6 +108,41 @@ docker compose down
 - Prefer Origin remotes for agent branches if that is your Project preference; set `REPO_URL` accordingly.
 - Cloud Agent environments stay useful for clean builds without personal data; this Unraid worker is for long-lived local state.
 
+### Image baseline (no ad-hoc installs)
+
+The published image includes what `/scrape`, `/rank`, and `/apply` need at OS level:
+
+| Area | Packages / tools |
+|------|------------------|
+| Portal CLIs | **Bun** (`~/.bun/bin` on `PATH`), `unzip` / `xz-utils` for the installer |
+| Python tools | `python3`, `python3-venv`, `python3-pip`, `python3-yaml`, `python3-pypdf`, `python3-openpyxl` |
+| CV / cover PDF | `texlive-luatex`, `texlive-xetex`, `texlive-latex-recommended`, `texlive-latex-extra`, `texlive-fonts-recommended`, `texlive-fonts-extra`, `fontconfig` (`lualatex` + `xelatex`) |
+| ATS / layout | **poppler-utils** (`pdftotext`) |
+| Worker | Cursor CLI (`agent`), `git`, `curl`, `ca-certificates`, `tini` |
+
+Still done **in the mounted repo** (not the image): `python3 tools/install_portal_clis.py` / per-CLI `bun install`, and any personal profile files. Do **not** bake API keys or tokens into the image — use `CURSOR_API_KEY` or the mounted token file.
+
+Cover-letter fonts ship with the repo (`cover_letters/OpenFonts`); the TeX set matches `.cursor/cloud-agent-install.sh` (smaller than `texlive-full`).
+
+### Unraid: force-pull new image + recreate
+
+After GHCR publishes a new `:latest` (merge to `main` → Actions **Publish GHCR image**):
+
+1. Unraid → **Docker** → `cursor-worker` → **Stop**.
+2. **Force update** (or remove the container only — **do not** delete the appdata folders).
+3. Confirm paths still map:
+   - `/mnt/user/appdata/cursor-worker/repo` → `/workspace/repo`
+   - `/mnt/user/appdata/cursor-worker/config` → `/home/cursor/.config/cursor-worker`
+4. **Apply** / start so Unraid pulls `ghcr.io/gavinlc/cursor-unraid-worker:latest` again.
+5. Check logs, then My Machines → your `WORKER_NAME`.
+
+CLI equivalent (preserves mounts if you recreate with the same template):
+
+```bash
+docker pull ghcr.io/gavinlc/cursor-unraid-worker:latest
+# Then recreate from the Unraid UI (Force update) or your compose file with the same volume binds.
+```
+
 ## Networking
 
 Allow outbound HTTPS to at least:
